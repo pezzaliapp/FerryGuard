@@ -5,14 +5,15 @@
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#004f7c",
+  "orientation": "portrait",
   "icons": [
     {
-      "src": "logo_ferryguard.png",
+      "src": "ferryguard-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "logo_ferryguard.png",
+      "src": "ferryguard-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
