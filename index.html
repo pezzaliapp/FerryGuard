@@ -41,47 +41,60 @@
   <table id="logTable">
     <thead>
       <tr>
-        <th>🆔 ID</th>
-        <th>📍 Lat</th>
-        <th>📍 Lng</th>
-        <th>🕒 Timestamp</th>
-        <th>📢 Stato</th>
+        <th>ID</th>
+        <th>Nome</th>
+        <th>Disabilità</th>
+        <th>Posizione</th>
+        <th>Lat</th>
+        <th>Lng</th>
+        <th>Timestamp</th>
+        <th>Stato</th>
       </tr>
     </thead>
     <tbody id="logBody"></tbody>
   </table>
 
   <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-  import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-  import { firebaseConfig } from "./firebase-config.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const q = query(collection(db, "sos_log"), orderBy("timestamp", "desc"));
+    // Configurazione Firebase direttamente nel file (puoi anche esternalizzarla in firebase-config.js)
+    const firebaseConfig = {
+      apiKey: "AIzaSyDMlSihgBH4I2IVBbNqhT1-lYWFgEPd08Q",
+      authDomain: "ferryguard-bc3fc.firebaseapp.com",
+      projectId: "ferryguard-bc3fc",
+      storageBucket: "ferryguard-bc3fc.appspot.com",
+      messagingSenderId: "555623410470",
+      appId: "1:555623410470:web:cac2530276035ffd906fe7"
+    };
 
-  const logBody = document.getElementById("logBody");
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const q = query(collection(db, "sos_log"), orderBy("timestamp", "desc"));
 
-  onSnapshot(q, (snapshot) => {
-    logBody.innerHTML = "";
-    snapshot.forEach((doc) => {
-      const data = doc.data();
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${data.device_id || "-"}</td>
-        <td>${data.nome || "-"}</td>
-        <td>${data.disabilita || "-"}</td>
-        <td>${data.posizione || "-"}</td>
-        <td>${data.lat}</td>
-        <td>${data.lng}</td>
-        <td>${new Date(data.timestamp).toLocaleString()}</td>
-        <td class="${data.status === 'SOS' ? 'sos' : ''}">${data.status}</td>
-      `;
-      logBody.appendChild(row);
+    const logBody = document.getElementById("logBody");
+
+    onSnapshot(q, (snapshot) => {
+      logBody.innerHTML = "";
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${data.device_id || "-"}</td>
+          <td>${data.nome || "-"}</td>
+          <td>${data.disabilita || "-"}</td>
+          <td>${data.posizione || "-"}</td>
+          <td>${data.lat || "-"}</td>
+          <td>${data.lng || "-"}</td>
+          <td>${new Date(data.timestamp).toLocaleString()}</td>
+          <td class="${data.status === 'SOS' ? 'sos' : ''}">${data.status || "-"}</td>
+        `;
+        logBody.appendChild(row);
+      });
     });
-  });
-</script>
-<script>
+  </script>
+
+  <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('service-worker.js')
