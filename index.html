@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FerryGuard – Dashboard</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="logo_ferryguard.png" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 1rem;
+      background: #f4f6f8;
+    }
+    h1 {
+      text-align: center;
+      color: #004f7c;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      background: #fff;
+    }
+    th, td {
+      padding: 0.8rem;
+      border: 1px solid #ccc;
+      text-align: center;
+    }
+    th {
+      background: #e9ecef;
+    }
+    .sos {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>🛟 FerryGuard – SOS Dashboard</h1>
+  <table id="logTable">
+    <thead>
+      <tr>
+        <th>🆔 ID</th>
+        <th>📍 Lat</th>
+        <th>📍 Lng</th>
+        <th>🕒 Timestamp</th>
+        <th>📢 Stato</th>
+      </tr>
+    </thead>
+    <tbody id="logBody"></tbody>
+  </table>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+    import { firebaseConfig } from "./firebase-config.js";
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const q = query(collection(db, "sos_log"), orderBy("timestamp", "desc"));
+
+    const logBody = document.getElementById("logBody");
+
+    onSnapshot(q, (snapshot) => {
+      logBody.innerHTML = "";
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${data.device_id}</td>
+          <td>${data.lat}</td>
+          <td>${data.lng}</td>
+          <td>${new Date(data.timestamp).toLocaleString()}</td>
+          <td class="${data.status === 'SOS' ? 'sos' : ''}">${data.status}</td>
+        `;
+        logBody.appendChild(row);
+      });
+    });
+  </script>
+</body>
+</html>
