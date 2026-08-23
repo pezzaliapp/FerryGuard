@@ -2,7 +2,7 @@
    Zero server, zero costi: demo locale, Web Serial opzionale, dati solo sul dispositivo. */
 "use strict";
 
-const APP_VERSION = "2.0.7";
+const APP_VERSION = "2.0.8";
 const $ = (id) => document.getElementById(id);
 
 /* ══════════ Navigazione a tab ══════════ */
@@ -357,38 +357,22 @@ $("btnSupClear").addEventListener("click", () => {
 });
 renderSup();
 
-/* ══════════ Service worker: registrazione e auto-aggiornamento ══════════ */
+/* ══════════ Service worker: registrazione e aggiornamento automatico ══════════ */
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", async () => {
     try {
       const reg = await navigator.serviceWorker.register("service-worker.js");
 
-      const promptUpdate = () => {
-        const toast = $("updateToast");
-        toast.hidden = false;
-        $("btnUpdate").onclick = async () => {
-          toast.hidden = true;
-          const r = await navigator.serviceWorker.getRegistration();
-          // Se la nuova versione è ancora in installazione, SKIP_WAITING non avrebbe
-          // destinatario: attendi che passi a "waiting" (con tetto massimo di 3 s).
-          if (r && !r.waiting && r.installing) {
-            const w = r.installing;
-            await new Promise((resolve) => {
-              const timer = setTimeout(resolve, 3000);
-              w.addEventListener("statechange", () => {
-                if (w.state !== "installing") { clearTimeout(timer); resolve(); }
-              });
-            });
-          }
-          if (r && r.waiting) r.waiting.postMessage({ type: "SKIP_WAITING" });
-          setTimeout(() => location.reload(), 1000);
-        };
+      // Aggiornamento silenzioso: appena una nuova versione è pronta le si dice
+      // di attivarsi, senza mostrare nulla e senza chiedere niente all'utente.
+      const applyUpdate = (worker) => {
+        if (worker) worker.postMessage({ type: "SKIP_WAITING" });
       };
-      if (reg.waiting) promptUpdate();
+      if (reg.waiting) applyUpdate(reg.waiting);
       reg.addEventListener("updatefound", () => {
         const w = reg.installing;
         w && w.addEventListener("statechange", () => {
-          if (w.state === "installed" && navigator.serviceWorker.controller) promptUpdate();
+          if (w.state === "installed" && navigator.serviceWorker.controller) applyUpdate(w);
         });
       });
 
@@ -400,6 +384,9 @@ if ("serviceWorker" in navigator) {
       let reloading = false;
       navigator.serviceWorker.addEventListener("controllerchange", () => {
         if (reloading) return;
+        // Demo in corso: non interrompere la simulazione a metà. Il nuovo service
+        // worker è già attivo, la nuova interfaccia arriva alla prossima apertura.
+        if (state.demoTimer) return;
         reloading = true;
         location.reload();
       });

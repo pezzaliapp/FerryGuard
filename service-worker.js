@@ -1,6 +1,6 @@
 /* FerryGuard · service-worker.js — © Alessandro Pezzali · MIT
    Ad ogni release aggiornare VERSION: la PWA si aggiorna da sola su tutti i dispositivi. */
-const VERSION = "fg-v2.0.7";
+const VERSION = "fg-v2.0.8";
 const CACHE = "ferryguard-" + VERSION;
 
 const CORE = [
@@ -31,6 +31,11 @@ self.addEventListener("message", (event) => {
   if (event.data && event.data.type === "SKIP_WAITING") self.skipWaiting();
 });
 
+// Richiesta che scavalca la cache HTTP del browser (l'edge serve con max-age lungo).
+// Ricostruita dall'URL: clonare una richiesta di navigazione con un init non vuoto
+// non è supportato allo stesso modo su tutti i browser.
+const fresh = (url) => new Request(url, { cache: "no-store" });
+
 self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET" || !req.url.startsWith("http")) return;
@@ -38,7 +43,7 @@ self.addEventListener("fetch", (event) => {
   // Navigazioni: prima la rete (così gli aggiornamenti arrivano subito), offline dalla cache
   if (req.mode === "navigate") {
     event.respondWith(
-      fetch(req)
+      fetch(fresh(req.url))
         .then((res) => {
           const copy = res.clone();
           caches.open(CACHE).then((c) => c.put("./index.html", copy));
@@ -54,7 +59,7 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(req.url);
   if (url.origin === self.location.origin && /\/(app\.js|app\.css)$/.test(url.pathname)) {
     event.respondWith(
-      fetch(req)
+      fetch(fresh(req.url))
         .then((res) => {
           if (res.ok) {
             const copy = res.clone();
