@@ -2,7 +2,7 @@
    Zero server, zero costi: demo locale, Web Serial opzionale, dati solo sul dispositivo. */
 "use strict";
 
-const APP_VERSION = "2.0.2";
+const APP_VERSION = "2.0.3";
 const $ = (id) => document.getElementById(id);
 
 /* ══════════ Navigazione a tab ══════════ */
@@ -363,20 +363,21 @@ if ("serviceWorker" in navigator) {
     try {
       const reg = await navigator.serviceWorker.register("service-worker.js");
 
-      const promptUpdate = (worker) => {
+      const promptUpdate = () => {
         const toast = $("updateToast");
         toast.hidden = false;
-        $("btnUpdate").onclick = () => {
-          $("updateToast").hidden = true;
-          worker.postMessage({ type: "SKIP_WAITING" });
-          setTimeout(() => { location.reload(); }, 1500);
+        $("btnUpdate").onclick = async () => {
+          toast.hidden = true;
+          const r = await navigator.serviceWorker.getRegistration();
+          if (r && r.waiting) r.waiting.postMessage({ type: "SKIP_WAITING" });
+          setTimeout(() => location.reload(), 1000);
         };
       };
-      if (reg.waiting) promptUpdate(reg.waiting);
+      if (reg.waiting) promptUpdate();
       reg.addEventListener("updatefound", () => {
         const w = reg.installing;
         w && w.addEventListener("statechange", () => {
-          if (w.state === "installed" && navigator.serviceWorker.controller) promptUpdate(w);
+          if (w.state === "installed" && navigator.serviceWorker.controller) promptUpdate();
         });
       });
 
