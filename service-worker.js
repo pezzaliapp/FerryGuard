@@ -1,6 +1,6 @@
 /* FerryGuard · service-worker.js — © Alessandro Pezzali · MIT
    Ad ogni release aggiornare VERSION: la PWA si aggiorna da sola su tutti i dispositivi. */
-const VERSION = "fg-v2.0.6";
+const VERSION = "fg-v2.0.7";
 const CACHE = "ferryguard-" + VERSION;
 
 const CORE = [
@@ -16,7 +16,7 @@ const CORE = [
 ];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(caches.open(CACHE).then((c) => c.addAll(CORE)));
+  event.waitUntil(caches.open(CACHE).then((c) => c.addAll(CORE.map((u) => new Request(u, { cache: "reload" })))));
 });
 
 self.addEventListener("activate", (event) => {
@@ -49,12 +49,30 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // app.js e app.css: prima la rete come le navigazioni, altrimenti l'HTML nuovo
+  // finirebbe per girare con il JS/CSS vecchio preso dalla cache. Offline: cache.
+  const url = new URL(req.url);
+  if (url.origin === self.location.origin && /\/(app\.js|app\.css)$/.test(url.pathname)) {
+    event.respondWith(
+      fetch(req)
+        .then((res) => {
+          if (res.ok) {
+            const copy = res.clone();
+            caches.open(CACHE).then((c) => c.put(req, copy));
+          }
+          return res;
+        })
+        .catch(() => caches.match(req))
+    );
+    return;
+  }
+
   // Risorse: cache subito, aggiornamento in background (stale-while-revalidate)
   event.respondWith(
     caches.match(req).then((cached) => {
       const network = fetch(req)
         .then((res) => {
-          if (res.ok && new URL(req.url).origin === self.location.origin) {
+          if (res.ok && url.origin === self.location.origin) {
             const copy = res.clone();
             caches.open(CACHE).then((c) => c.put(req, copy));
           }
