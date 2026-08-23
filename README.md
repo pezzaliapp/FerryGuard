@@ -4,7 +4,7 @@
 
 Progetto di proprietà intellettuale di **Alessandro Pezzali** (pezzaliAPP) · Licenza MIT.
 
-🔗 Demo live (PWA installabile): `https://pezzaliapp.github.io/FerryGuard/`
+🔗 Demo live (PWA installabile): `https://www.alessandropezzali.it/FerryGuard/`
 
 ---
 
