@@ -2,7 +2,7 @@
    Zero server, zero costi: demo locale, Web Serial opzionale, dati solo sul dispositivo. */
 "use strict";
 
-const APP_VERSION = "2.0.0";
+const APP_VERSION = "2.0.2";
 const $ = (id) => document.getElementById(id);
 
 /* ══════════ Navigazione a tab ══════════ */
@@ -320,7 +320,7 @@ $("btnSupMail").addEventListener("click", () => {
   const subject = encodeURIComponent("Voglio sostenere FerryGuard");
   const body = encodeURIComponent(
     `Nome: ${f.nome.value}\nEmail: ${f.email.value}\nContributo: ${f.ruolo.value}\n\n${f.messaggio.value}\n\n— Inviato dalla PWA FerryGuard`);
-  location.href = `mailto:info@pezzaliapp.com?subject=${subject}&body=${body}`;
+  location.href = `mailto:pezzaliapp@gmail.com?subject=${subject}&body=${body}`;
 });
 
 $("btnSupShare").addEventListener("click", async () => {
@@ -366,7 +366,11 @@ if ("serviceWorker" in navigator) {
       const promptUpdate = (worker) => {
         const toast = $("updateToast");
         toast.hidden = false;
-        $("btnUpdate").onclick = () => worker.postMessage({ type: "SKIP_WAITING" });
+        $("btnUpdate").onclick = () => {
+          $("updateToast").hidden = true;
+          worker.postMessage({ type: "SKIP_WAITING" });
+          setTimeout(() => { location.reload(); }, 1500);
+        };
       };
       if (reg.waiting) promptUpdate(reg.waiting);
       reg.addEventListener("updatefound", () => {
