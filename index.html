@@ -2,110 +2,247 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FerryGuard – Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="FerryGuard – Sistema SOS via LoRa per passeggeri fragili sui traghetti. Dashboard di plancia, demo interattiva e progetto hardware aperto. Zero costi, zero server." />
+  <meta name="theme-color" content="#0B1B2B" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="FerryGuard" />
+  <title>FerryGuard – SOS via LoRa per traghetti</title>
   <link rel="manifest" href="manifest.json" />
-  <link rel="icon" href="logo_ferryguard.png" />
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 1rem;
-      background: #f4f6f8;
-    }
-    h1 {
-      text-align: center;
-      color: #004f7c;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 1rem;
-      background: #fff;
-    }
-    th, td {
-      padding: 0.8rem;
-      border: 1px solid #ccc;
-      text-align: center;
-    }
-    th {
-      background: #e9ecef;
-    }
-    .sos {
-      color: red;
-      font-weight: bold;
-    }
-  </style>
+  <link rel="icon" href="ferryguard-192.png" />
+  <link rel="apple-touch-icon" href="ferryguard-192.png" />
+  <link rel="stylesheet" href="app.css" />
 </head>
 <body>
-  <h1>🛟 FerryGuard – SOS Dashboard</h1>
-  <table id="logTable">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Nome</th>
-        <th>Disabilità</th>
-        <th>Posizione</th>
-        <th>Lat</th>
-        <th>Lng</th>
-        <th>Timestamp</th>
-        <th>Stato</th>
-      </tr>
-    </thead>
-    <tbody id="logBody"></tbody>
-  </table>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+<header class="topbar">
+  <div class="brand">
+    <img src="ferryguard-192.png" alt="" width="34" height="34" />
+    <div>
+      <strong>FerryGuard</strong>
+      <span class="brand-sub">SOS · LoRa 868 MHz · Plancia</span>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <span id="clock" class="clock" aria-live="off">--:--:--</span>
+    <span id="modeBadge" class="badge badge-idle">STANDBY</span>
+  </div>
+</header>
 
-    // Configurazione Firebase direttamente nel file (puoi anche esternalizzarla in firebase-config.js)
-    const firebaseConfig = {
-      apiKey: "AIzaSyDMlSihgBH4I2IVBbNqhT1-lYWFgEPd08Q",
-      authDomain: "ferryguard-bc3fc.firebaseapp.com",
-      projectId: "ferryguard-bc3fc",
-      storageBucket: "ferryguard-bc3fc.appspot.com",
-      messagingSenderId: "555623410470",
-      appId: "1:555623410470:web:cac2530276035ffd906fe7"
-    };
+<nav class="tabs" role="tablist" aria-label="Sezioni">
+  <button class="tab is-active" data-panel="dashboard" role="tab" aria-selected="true">🛟 Plancia</button>
+  <button class="tab" data-panel="demo" role="tab" aria-selected="false">▶ Demo</button>
+  <button class="tab" data-panel="progetto" role="tab" aria-selected="false">🧭 Progetto</button>
+  <button class="tab" data-panel="hardware" role="tab" aria-selected="false">🔧 Hardware</button>
+  <button class="tab" data-panel="sostenitori" role="tab" aria-selected="false">🤝 Sostenitori</button>
+</nav>
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const q = query(collection(db, "sos_log"), orderBy("timestamp", "desc"));
+<main>
 
-    const logBody = document.getElementById("logBody");
+<!-- ══════════ PLANCIA / DASHBOARD ══════════ -->
+<section id="panel-dashboard" class="panel is-active" role="tabpanel">
+  <div class="deck-wrap">
+    <div class="deck-head">
+      <h1>Ponte di comando</h1>
+      <div class="deck-actions">
+        <button id="btnGateway" class="btn btn-ghost" hidden>🔌 Collega gateway LoRa</button>
+        <button id="btnDemoQuick" class="btn btn-primary">▶ Avvia demo</button>
+        <button id="btnStopDemo" class="btn btn-ghost" hidden>■ Ferma demo</button>
+      </div>
+    </div>
 
-    onSnapshot(q, (snapshot) => {
-      logBody.innerHTML = "";
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${data.device_id || "-"}</td>
-          <td>${data.nome || "-"}</td>
-          <td>${data.disabilita || "-"}</td>
-          <td>${data.posizione || "-"}</td>
-          <td>${data.lat || "-"}</td>
-          <td>${data.lng || "-"}</td>
-          <td>${new Date(data.timestamp).toLocaleString()}</td>
-          <td class="${data.status === 'SOS' ? 'sos' : ''}">${data.status || "-"}</td>
-        `;
-        logBody.appendChild(row);
-      });
-    });
-  </script>
+    <div class="deck-grid">
+      <figure class="deckplan-card">
+        <figcaption class="card-label">Pianta nave · vista dall'alto</figcaption>
+        <svg id="deckplan" viewBox="0 0 900 380" role="img" aria-label="Pianta del traghetto con posizione dei dispositivi">
+          <defs>
+            <radialGradient id="sweepGrad" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="var(--radar)" stop-opacity=".16"/>
+              <stop offset="100%" stop-color="var(--radar)" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          <!-- scafo -->
+          <path class="hull" d="M60,190 Q60,70 200,60 L640,60 Q830,70 870,190 Q830,310 640,320 L200,320 Q60,310 60,190 Z"/>
+          <!-- ponti -->
+          <line class="deckline" x1="230" y1="70" x2="230" y2="310"/>
+          <line class="deckline" x1="430" y1="62" x2="430" y2="318"/>
+          <line class="deckline" x1="630" y1="70" x2="630" y2="310"/>
+          <text class="decklabel" x="145" y="196">PRUA</text>
+          <text class="decklabel" x="330" y="196">PONTE A</text>
+          <text class="decklabel" x="530" y="196">PONTE B</text>
+          <text class="decklabel" x="735" y="196">POPPA</text>
+          <!-- plancia -->
+          <rect class="bridge" x="96" y="160" width="46" height="60" rx="8"/>
+          <text class="decklabel small" x="119" y="245">PLANCIA</text>
+          <circle id="radarPulse" cx="119" cy="190" r="0" fill="url(#sweepGrad)"/>
+          <g id="tagLayer"></g>
+        </svg>
+      </figure>
 
- <script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('service-worker.js')
-        .then(reg => console.log("✅ Service Worker registrato", reg))
-        .catch(err => console.error("❌ Errore Service Worker", err));
-    });
-  }
-</script>
+      <div class="side-cards">
+        <div class="stat-card">
+          <span class="card-label">Dispositivi attivi</span>
+          <span id="statTags" class="stat-num">0</span>
+        </div>
+        <div class="stat-card stat-sos">
+          <span class="card-label">SOS in corso</span>
+          <span id="statSos" class="stat-num">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="card-label">Ultimo pacchetto</span>
+          <span id="statLast" class="stat-mono">—</span>
+        </div>
+      </div>
+    </div>
 
-<!-- 🌍 Mappa Visitatori FerryGuard -->
-  <div style="margin-top: 40px; text-align: center;">
-<script type="text/javascript" id="mapmyvisitors" src="//mapmyvisitors.com/map.js?d=V3nh0RHl4oIId7OztXI-JJqIZptVBfLaeGlbDyeFQRw&cl=ffffff&w=a"></script>
+    <div class="table-card">
+      <div class="table-head">
+        <span class="card-label">Registro segnali</span>
+        <button id="btnClearLog" class="btn btn-mini">Svuota</button>
+      </div>
+      <div class="table-scroll">
+        <table id="logTable">
+          <thead>
+            <tr><th>ID</th><th>Nome</th><th>Zona</th><th>Lat</th><th>Lng</th><th>Ora</th><th>Stato</th><th></th></tr>
+          </thead>
+          <tbody id="logBody"></tbody>
+        </table>
+      </div>
+      <p id="logEmpty" class="empty">Nessun segnale ricevuto. Avvia la demo o collega un gateway LoRa via USB.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ DEMO ══════════ -->
+<section id="panel-demo" class="panel" role="tabpanel" hidden>
+  <h1>Demo interattiva</h1>
+  <p class="lead">La demo simula in locale una traversata con dispositivi FerryGuard a bordo: nessun server, nessun costo, funziona anche offline. Tutto avviene dentro il tuo dispositivo.</p>
+  <div class="demo-controls">
+    <button id="btnDemoStart" class="btn btn-primary">▶ Avvia simulazione</button>
+    <button id="btnDemoSos" class="btn btn-sos" disabled>🆘 Simula SOS casuale</button>
+    <button id="btnDemoReset" class="btn btn-ghost">↺ Reset</button>
+  </div>
+  <ol class="howto">
+    <li><strong>Avvia simulazione</strong> — sei tag virtuali iniziano a trasmettere posizione e stato ogni pochi secondi, come farebbero via LoRa.</li>
+    <li><strong>Simula SOS</strong> — un passeggero preme il pulsante: il tag lampeggia sulla pianta nave, suona l'allarme e la riga nel registro diventa rossa.</li>
+    <li><strong>Presa in carico</strong> — dalla plancia, premi «Gestito» sulla riga SOS per chiudere l'allarme, come farebbe l'equipaggio.</li>
+  </ol>
+  <div class="note-card">
+    <strong>Come funziona dal vero?</strong> I tag indossabili trasmettono via radio LoRa a 868 MHz (nessuna rete necessaria). Un ricevitore in plancia, collegato via USB, inoltra i pacchetti a questa stessa dashboard tramite Web Serial — sempre a costo zero e senza internet.
+  </div>
+</section>
+
+<!-- ══════════ PROGETTO ══════════ -->
+<section id="panel-progetto" class="panel" role="tabpanel" hidden>
+  <h1>Il progetto</h1>
+  <p class="lead">Un sistema aperto e gratuito perché nessun passeggero fragile resti invisibile durante una traversata.</p>
+  <div class="w-grid">
+    <article class="w-card"><h2>Chi</h2><p>Ideato e sviluppato da <strong>Alessandro Pezzali</strong> (pezzaliAPP). Destinatari: passeggeri con disabilità, anziani, bambini e chiunque necessiti di assistenza rapida a bordo; utilizzatori: equipaggio e comando nave.</p></article>
+    <article class="w-card"><h2>Cosa</h2><p>Un tag indossabile con pulsante SOS che trasmette identità, posizione GPS e stato via radio LoRa alla plancia, dove questa dashboard mostra in tempo reale chi ha bisogno di aiuto e dove si trova.</p></article>
+    <article class="w-card"><h2>Come</h2><p>Radio LoRa 868 MHz: portata di centinaia di metri attraverso i ponti nave, senza Wi-Fi, senza SIM, senza internet. Hardware open a basso costo (ESP32 + SX1276 + GPS), software open source, dashboard PWA installabile su qualsiasi dispositivo.</p></article>
+    <article class="w-card"><h2>Quando</h2><p>Durante l'imbarco, la traversata e lo sbarco: i momenti in cui la rete cellulare sparisce e le persone fragili sono più esposte. Il tag trasmette un heartbeat periodico e un SOS immediato alla pressione del pulsante.</p></article>
+    <article class="w-card"><h2>Dove</h2><p>Traghetti e navi passeggeri, ma anche eventi, RSA in gita, campeggi e aree senza copertura. Ovunque serva localizzare e soccorrere in fretta senza infrastruttura.</p></article>
+    <article class="w-card"><h2>Perché</h2><p>Perché la sicurezza non deve dipendere dal segnale del telefono né da abbonamenti. FerryGuard è gratuito, autocostruibile e replicabile da compagnie, associazioni e maker.</p></article>
+  </div>
+  <div class="roadmap">
+    <h2>Percorso verso il prototipo</h2>
+    <ol class="steps">
+      <li><strong>Fase 1 · Demo software</strong> — questa PWA: dashboard + simulazione. <em>Completata.</em></li>
+      <li><strong>Fase 2 · Prototipo tag</strong> — ESP32 + LoRa + GPS su breadboard, firmware incluso nel repository.</li>
+      <li><strong>Fase 3 · Gateway plancia</strong> — ricevitore LoRa→USB collegato alla dashboard via Web Serial.</li>
+      <li><strong>Fase 4 · Case indossabile</strong> — stampa 3D, batteria LiPo, test di portata reale a bordo.</li>
+      <li><strong>Fase 5 · Prova pilota</strong> — sperimentazione con una compagnia di navigazione partner.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ══════════ HARDWARE ══════════ -->
+<section id="panel-hardware" class="panel" role="tabpanel" hidden>
+  <h1>Hardware aperto</h1>
+  <p class="lead">Componenti reperibili ovunque, costo stimato del singolo tag: <strong>circa 25–35 €</strong>. Firmware incluso (<code>ferryguard_tag.ino</code>).</p>
+  <div class="table-card">
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Componente</th><th>Ruolo</th><th>Note</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">ESP32 DevKit</td><td>Microcontrollore</td><td>Wi-Fi/BT integrati, alimentazione 3,3 V</td></tr>
+          <tr><td class="mono">LoRa SX1276</td><td>Radio 868 MHz</td><td>Banda libera EU, portata centinaia di metri</td></tr>
+          <tr><td class="mono">GPS u-blox NEO-6M</td><td>Posizione</td><td>UART2, utile sui ponti esterni</td></tr>
+          <tr><td class="mono">Pulsante SOS</td><td>Allarme</td><td>Con debounce e latch software</td></tr>
+          <tr><td class="mono">LED di stato</td><td>Feedback</td><td>Lampeggio non bloccante</td></tr>
+          <tr><td class="mono">Batteria LiPo + TP4056</td><td>Alimentazione</td><td>Ricaricabile via USB</td></tr>
+          <tr><td class="mono">Case stampato 3D</td><td>Involucro</td><td>Indossabile, aggancio a laccio</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <h2 class="mt">Collegamenti principali</h2>
+  <pre class="wiring">LoRa SX1276          ESP32
+  NSS  ────────────── GPIO 18
+  RST  ────────────── GPIO 14
+  DIO0 ────────────── GPIO 26
+  SCK/MISO/MOSI ───── SPI (18 di default VSPI)
+
+GPS NEO-6M           ESP32 (UART2)
+  TX   ────────────── GPIO 16 (RX)
+  RX   ────────────── GPIO 17 (TX)
+
+Pulsante SOS ───────  GPIO 13 → GND (INPUT_PULLUP)
+LED stato    ───────  GPIO 12 → resistenza 220 Ω → GND</pre>
+  <div class="note-card"><strong>Ricevitore di plancia:</strong> stesso hardware senza GPS, con firmware che stampa i pacchetti sulla seriale USB. La dashboard li legge direttamente dal browser con «Collega gateway LoRa» (Web Serial, Chrome/Edge su desktop).</div>
+</section>
+
+<!-- ══════════ SOSTENITORI ══════════ -->
+<section id="panel-sostenitori" class="panel" role="tabpanel" hidden>
+  <h1>Diventa sostenitore</h1>
+  <p class="lead">FerryGuard cerca persone e realtà che credano nel progetto: maker, compagnie di navigazione, associazioni, sponsor tecnici. Nessuna raccolta fondi qui dentro: i contatti restano <strong>solo sul tuo dispositivo</strong> finché non decidi tu di inviarli.</p>
+  <form id="supForm" class="sup-form" autocomplete="on">
+    <div class="field"><label for="supNome">Nome o organizzazione *</label><input id="supNome" name="nome" required maxlength="80" /></div>
+    <div class="field"><label for="supEmail">Email di contatto *</label><input id="supEmail" name="email" type="email" required maxlength="120" /></div>
+    <div class="field">
+      <label for="supRuolo">Come vuoi contribuire?</label>
+      <select id="supRuolo" name="ruolo">
+        <option>Maker / sviluppo hardware</option>
+        <option>Compagnia di navigazione / prova pilota</option>
+        <option>Associazione / disabilità e inclusione</option>
+        <option>Sponsor tecnico (componenti, stampa 3D)</option>
+        <option>Diffusione e comunicazione</option>
+        <option>Altro</option>
+      </select>
+    </div>
+    <div class="field"><label for="supMsg">Messaggio</label><textarea id="supMsg" name="messaggio" rows="3" maxlength="500"></textarea></div>
+    <div class="sup-actions">
+      <button type="submit" class="btn btn-primary">Salva adesione sul dispositivo</button>
+      <button type="button" id="btnSupMail" class="btn btn-ghost">✉ Invia via email</button>
+      <button type="button" id="btnSupShare" class="btn btn-ghost">📤 Condividi il progetto</button>
+    </div>
+  </form>
+  <div class="table-card mt">
+    <div class="table-head">
+      <span class="card-label">Adesioni salvate su questo dispositivo</span>
+      <span><button id="btnSupCsv" class="btn btn-mini">Esporta CSV</button> <button id="btnSupClear" class="btn btn-mini">Svuota</button></span>
+    </div>
+    <div class="table-scroll">
+      <table><thead><tr><th>Nome</th><th>Email</th><th>Ruolo</th><th>Data</th></tr></thead><tbody id="supBody"></tbody></table>
+    </div>
+    <p id="supEmpty" class="empty">Nessuna adesione salvata.</p>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <span>FerryGuard · progetto di <strong>Alessandro Pezzali</strong> — pezzaliAPP · Licenza MIT · <span id="appVersion"></span></span>
+</footer>
+
+<div id="updateToast" class="toast" hidden>
+  <span>Nuova versione disponibile</span>
+  <button id="btnUpdate" class="btn btn-primary btn-mini">Aggiorna ora</button>
+</div>
+<div id="sosToast" class="toast toast-sos" hidden role="alert"></div>
+
+<script src="app.js"></script>
 </body>
 </html>
