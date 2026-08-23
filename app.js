@@ -2,7 +2,7 @@
    Zero server, zero costi: demo locale, Web Serial opzionale, dati solo sul dispositivo. */
 "use strict";
 
-const APP_VERSION = "2.0.3";
+const APP_VERSION = "2.0.4";
 const $ = (id) => document.getElementById(id);
 
 /* ══════════ Navigazione a tab ══════════ */
@@ -369,6 +369,17 @@ if ("serviceWorker" in navigator) {
         $("btnUpdate").onclick = async () => {
           toast.hidden = true;
           const r = await navigator.serviceWorker.getRegistration();
+          // Se la nuova versione è ancora in installazione, SKIP_WAITING non avrebbe
+          // destinatario: attendi che passi a "waiting" (con tetto massimo di 3 s).
+          if (r && !r.waiting && r.installing) {
+            const w = r.installing;
+            await new Promise((resolve) => {
+              const timer = setTimeout(resolve, 3000);
+              w.addEventListener("statechange", () => {
+                if (w.state !== "installing") { clearTimeout(timer); resolve(); }
+              });
+            });
+          }
           if (r && r.waiting) r.waiting.postMessage({ type: "SKIP_WAITING" });
           setTimeout(() => location.reload(), 1000);
         };
