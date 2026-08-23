@@ -1,55 +1,62 @@
 # 🛟 FerryGuard
 
-**FerryGuard** è un sistema di sicurezza progettato per assistere persone con disabilità durante i viaggi in traghetto, permettendo la **localizzazione e l’invio di un SOS** al ponte di comando anche **senza Internet**, grazie alla comunicazione via **LoRa a 868 MHz**.
+**FerryGuard** è un sistema aperto e gratuito per la sicurezza dei passeggeri fragili sui traghetti: un tag indossabile con pulsante **SOS** trasmette identità, posizione GPS e stato via **LoRa 868 MHz** direttamente alla plancia — **senza internet, senza SIM, senza server, senza costi**.
+
+Progetto di proprietà intellettuale di **Alessandro Pezzali** (pezzaliAPP) · Licenza MIT.
+
+🔗 Demo live (PWA installabile): `https://pezzaliapp.github.io/FerryGuard/`
 
 ---
 
-## 🎯 Obiettivo
-Fornire ai passeggeri fragili un dispositivo affidabile e indossabile che, in caso di emergenza:
-- invii un messaggio SOS
-- trasmetta l’ID univoco e la posizione GPS (se disponibile)
-- comunichi direttamente con la centrale della nave
+## ✨ Novità versione 2.0
+
+- **Grafica completamente nuova** — tema "plancia notturna", pianta nave interattiva con posizione dei tag in tempo reale
+- **Demo integrata** — simulazione locale di una traversata con 6 tag, SOS con allarme sonoro/vibrazione e presa in carico
+- **Zero backend** — rimossi Firebase e tracker di terze parti: nessun costo, nessun dato che lascia il dispositivo
+- **Gateway reale via Web Serial** — il ricevitore LoRa si collega via USB alla dashboard (Chrome/Edge desktop), sempre gratis
+- **Auto-aggiornamento** — la PWA rileva ogni nuova release e propone «Aggiorna ora»; funziona offline
+- **Sezione Sostenitori** — adesioni salvate solo in locale, invio via email/condivisione a scelta dell'utente
+- **Compatibilità totale** — Android, iOS/iPadOS, Windows, macOS, Linux; layout ottimizzato per pieghevoli (schermo esterno stretto e schermo interno aperto)
+- **Firmware corretto** — SOS immediato con latch e debounce, nessun blocco del loop, ripristino automatico LoRa
 
 ---
 
-## 🔧 Hardware utilizzato
-- ESP32 (con Wi-Fi/Bluetooth)
-- Modulo **LoRa SX1276** – 868 MHz
-- Modulo GPS **u-blox NEO-6M**
-- Pulsante fisico SOS
-- LED di stato
-- Batteria LiPo ricaricabile
-- Case stampabile in 3D
+## 📁 Contenuto del repository
+
+| File | Descrizione |
+|---|---|
+| `index.html` | PWA completa: plancia, demo, progetto, hardware, sostenitori |
+| `app.css` | Tema grafico responsive |
+| `app.js` | Logica: demo, Web Serial, sostenitori, auto-update |
+| `service-worker.js` | Cache versionata, offline, auto-aggiornamento |
+| `manifest.json` | Installazione su tutte le piattaforme |
+| `ferryguard_tag.ino` | Firmware ESP32 del tag indossabile |
+| `ferryguard-*.png` | Icone (normali e maskable) |
 
 ---
 
-## 📁 Contenuto della repository
+## 🚀 Pubblicazione gratuita (GitHub Pages)
 
-| File                   | Descrizione                                       |
-|------------------------|---------------------------------------------------|
-| `ferryguard_tag.ino`   | Sketch ESP32: trasmette ID, GPS e SOS via LoRa   |
-| `index.html`           | Dashboard PWA per il ponte di comando            |
-| `firebase-config.js`   | Configurazione Firebase Firestore                |
-| `elenco_tag.csv`       | Elenco dispositivi registrati (ID + nome)        |
-| `logo_ferryguard.png`  | Icona ufficiale della PWA                         |
-| `schema_collegamento.pdf` | Wiring semplificato del circuito hardware     |
+1. Push del repository su GitHub
+2. **Settings → Pages → Deploy from branch → `main` / root**
+3. La PWA è online su `https://<utente>.github.io/FerryGuard/` — hosting a costo zero
+
+**Per rilasciare un aggiornamento:** modifica i file, incrementa `VERSION` in `service-worker.js` (es. `fg-v2.0.1`), push. Tutti i dispositivi installati riceveranno il toast «Aggiorna ora».
 
 ---
 
-## 🌐 Funzionamento
+## 🔧 Hardware del tag (≈ 25–35 €)
 
-1. Ogni utente indossa un dispositivo con **ID univoco**
-2. In caso di emergenza, può premere il **pulsante SOS**
-3. Il segnale viene inviato via **LoRa** al ponte di comando
-4. La dashboard riceve e visualizza l’alert, con **ora, ID, posizione**
+ESP32 DevKit · LoRa SX1276 868 MHz · GPS u-blox NEO-6M · pulsante SOS · LED · LiPo + TP4056 · case 3D.
+Schema collegamenti e dettagli nella sezione **Hardware** della PWA.
+
+Il **ricevitore di plancia** è lo stesso hardware senza GPS: riceve i pacchetti LoRa e li stampa sulla seriale USB nel formato `TAG_001,41.20000,9.40000,SOS`; la dashboard li legge con il pulsante «Collega gateway LoRa».
 
 ---
 
 ## 📜 Licenza
 
-Questo progetto è open-source e condivisibile per fini etici, educativi e di pubblica utilità.  
-💡 Per collaborazioni, contattare [pezzaliAPP.com](https://www.pezzaliapp.com)
-
----
+MIT © Alessandro Pezzali. Libero per usi etici, educativi e di pubblica utilità.
+Contatti e collaborazioni: [pezzaliAPP.com](https://www.pezzaliapp.com)
 
 ## 🚢 Pensato per traghetti. Pronto per il futuro.
