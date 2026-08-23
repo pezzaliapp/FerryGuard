@@ -37,11 +37,15 @@ Progetto di proprietà intellettuale di **Alessandro Pezzali** (pezzaliAPP) · L
 
 ## 🚀 Pubblicazione gratuita (GitHub Pages)
 
-1. Push del repository su GitHub
-2. **Settings → Pages → Deploy from branch → `main` / root**
-3. La PWA è online su `https://<utente>.github.io/FerryGuard/` — hosting a costo zero
+La **demo ufficiale** è online su `https://www.alessandropezzali.it/FerryGuard/`. Il dominio personalizzato è configurato sul sito principale dell'account (`pezzaliapp.github.io`) e GitHub Pages serve questo repository come sottocartella `/FerryGuard/`: nessun file `CNAME` è necessario qui.
 
-**Per rilasciare un aggiornamento:** modifica i file, incrementa `VERSION` in `service-worker.js` (es. `fg-v2.0.1`), push. Tutti i dispositivi installati riceveranno il toast «Aggiorna ora».
+**Hai fatto un fork?** Puoi pubblicare la tua copia in tre passaggi, sempre a costo zero:
+
+1. Push del repository sul tuo account GitHub
+2. **Settings → Pages → Deploy from branch → `main` / root**
+3. La tua PWA è online su `https://<utente>.github.io/FerryGuard/` — hosting a costo zero
+
+**Per rilasciare un aggiornamento:** modifica i file, incrementa `VERSION` in `service-worker.js` (es. `fg-v2.0.6`), push. Tutti i dispositivi installati riceveranno il toast «Aggiorna ora».
 
 ---
 
