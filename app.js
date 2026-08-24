@@ -2,7 +2,7 @@
    Zero server, zero costi: demo locale, Web Serial opzionale, dati solo sul dispositivo. */
 "use strict";
 
-const APP_VERSION = "2.0.9";
+const APP_VERSION = "2.0.10";
 const $ = (id) => document.getElementById(id);
 
 /* ══════════ Navigazione a tab ══════════ */
@@ -49,7 +49,7 @@ const DEMO_TAGS = [
   { id: "TAG_006", nome: "Paolo M.",   zona: "Prua"    },
 ];
 const ZONES = {
-  "Prua":    { x: [120, 220], y: [100, 280] },
+  "Prua":    { x: [200, 250], y: [140, 240] },
   "Ponte A": { x: [250, 410], y: [ 85, 295] },
   "Ponte B": { x: [450, 610], y: [ 85, 295] },
   "Poppa":   { x: [650, 820], y: [100, 280] },

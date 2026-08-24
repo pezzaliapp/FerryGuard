@@ -1,6 +1,6 @@
 /* FerryGuard · service-worker.js — © Alessandro Pezzali · MIT
    Ad ogni release aggiornare VERSION: la PWA si aggiorna da sola su tutti i dispositivi. */
-const VERSION = "fg-v2.0.9";
+const VERSION = "fg-v2.0.10";
 const CACHE = "ferryguard-" + VERSION;
 
 const CORE = [
