@@ -2,7 +2,7 @@
    Zero server, zero costi: demo locale, Web Serial opzionale, dati solo sul dispositivo. */
 "use strict";
 
-const APP_VERSION = "2.0.12";
+const APP_VERSION = "2.0.13";
 const $ = (id) => document.getElementById(id);
 
 /* ══════════ Navigazione a tab ══════════ */
@@ -361,7 +361,9 @@ renderSup();
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", async () => {
     try {
-      const reg = await navigator.serviceWorker.register("service-worker.js");
+      // URL versionato: a ogni release cambia la cache key, così anche il service
+      // worker nuovo scavalca la copia trattenuta dall'edge.
+      const reg = await navigator.serviceWorker.register("service-worker.js?v=" + APP_VERSION);
 
       // Aggiornamento silenzioso: appena una nuova versione è pronta le si dice
       // di attivarsi, senza mostrare nulla e senza chiedere niente all'utente.

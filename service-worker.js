@@ -1,6 +1,6 @@
 /* FerryGuard · service-worker.js — © Alessandro Pezzali · MIT
    Ad ogni release aggiornare VERSION: la PWA si aggiorna da sola su tutti i dispositivi. */
-const VERSION = "fg-v2.0.12";
+const VERSION = "fg-v2.0.13";
 const CACHE = "ferryguard-" + VERSION;
 
 const CORE = [
@@ -31,10 +31,15 @@ self.addEventListener("message", (event) => {
   if (event.data && event.data.type === "SKIP_WAITING") self.skipWaiting();
 });
 
-// Richiesta che scavalca la cache HTTP del browser (l'edge serve con max-age lungo).
-// Ricostruita dall'URL: clonare una richiesta di navigazione con un init non vuoto
-// non è supportato allo stesso modo su tutti i browser.
-const fresh = (url) => new Request(url, { cache: "no-store" });
+// L'edge (Cloudflare) serve con max-age lungo e non abbiamo accesso al purge:
+// un parametro univoco crea una cache key nuova a ogni richiesta, quindi la
+// risposta arriva sempre dall'origine. In Cache API si salva con la chiave
+// originale, senza il parametro.
+const bustUrl = (u) => {
+  const x = new URL(u);
+  x.searchParams.set("cb", Date.now());
+  return x.href;
+};
 
 self.addEventListener("fetch", (event) => {
   const req = event.request;
@@ -43,7 +48,7 @@ self.addEventListener("fetch", (event) => {
   // Navigazioni: prima la rete (così gli aggiornamenti arrivano subito), offline dalla cache
   if (req.mode === "navigate") {
     event.respondWith(
-      fetch(fresh(req.url))
+      fetch(bustUrl(req.url), { cache: "no-store" })
         .then((res) => {
           const copy = res.clone();
           caches.open(CACHE).then((c) => c.put("./index.html", copy));
@@ -59,7 +64,7 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(req.url);
   if (url.origin === self.location.origin && /\/(app\.js|app\.css)$/.test(url.pathname)) {
     event.respondWith(
-      fetch(fresh(req.url))
+      fetch(bustUrl(req.url), { cache: "no-store" })
         .then((res) => {
           if (res.ok) {
             const copy = res.clone();
